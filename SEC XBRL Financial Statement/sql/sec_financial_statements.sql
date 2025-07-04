@@ -1,1 +1,0 @@
-CREATE DATABASE sec_financial_statements;
