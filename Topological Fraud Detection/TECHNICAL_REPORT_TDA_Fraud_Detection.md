@@ -1,6 +1,6 @@
 # Topological Data Analysis for Fraud Detection: A Comparative Study
 
-**Author:** Francesco Stranieri  
+**Author:** Francesco Orsi  
 **Affiliation:** F. Hoffmann-La Roche AG - Audit & Risk Data Analytics  
 **Date:** January 30, 2026  
 **Status:** Research Proof-of-Concept
