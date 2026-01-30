@@ -264,11 +264,11 @@ Total Value:                  $3.5-8.5M/year
 
 ## 📞 Contact
 
-**Francesco Stranieri**  
+**Francesco Orsi**  
 Data Science Manager - Audit & Risk Data Analytics  
 F. Hoffmann-La Roche AG
 
-📧 [Email] | 💼 [LinkedIn] | 📝 [Substack] | 🐙 [GitHub]
+📧 [francesco.orsi@roche.com] | 💼 [LinkedIn] | 📝 [Substack] | 🐙 [GitHub]
 
 **Want to collaborate?** Open an issue or reach out!
 
