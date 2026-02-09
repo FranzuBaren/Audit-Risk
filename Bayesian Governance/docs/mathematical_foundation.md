@@ -21,11 +21,11 @@ The Bayesian governance framework uses **Beta-Binomial conjugacy** as its mathem
 
 ### Why Bayesian Methods?
 
-Traditional frequentist audit asks: "Given a fixed but unknown failure rate θ, what is the probability of observing k failures in n trials?"
+Traditional frequentist audit asks: "Given a fixed but unknown failure rate $\theta$, what is the probability of observing $k$ failures in $n$ trials?"
 
-Bayesian audit inverts the question: "Given that we observed k failures in n trials, what is the probability distribution over possible values of θ?"
+Bayesian audit inverts the question: "Given that we observed $k$ failures in $n$ trials, what is the probability distribution over possible values of $\theta$?"
 
-This inversion—from P(data|θ) to P(θ|data)—is achieved via **Bayes' Theorem**.
+This inversion—from $P(\text{data}|\theta)$ to $P(\theta|\text{data})$—is achieved via **Bayes' Theorem**.
 
 ---
 
@@ -36,76 +36,71 @@ This inversion—from P(data|θ) to P(θ|data)—is achieved via **Bayes' Theore
 We model audit observations as a **Binomial process**:
 
 **Data Model (Likelihood)**:
-```
-k ~ Binomial(n, θ)
-```
+
+$$k \sim \text{Binomial}(n, \theta)$$
+
 where:
-- n = number of batches audited
-- k = number of failures observed
-- θ = true (unknown) failure rate
+- $n$ = number of batches audited
+- $k$ = number of failures observed
+- $\theta$ = true (unknown) failure rate
 
 The probability mass function is:
-```
-P(k | θ, n) = C(n,k) θ^k (1-θ)^(n-k)
-```
+
+$$P(k | \theta, n) = \binom{n}{k} \theta^k (1-\theta)^{n-k}$$
 
 ### The Prior
 
-We place a **Beta distribution** prior on θ:
+We place a **Beta distribution** prior on $\theta$:
 
-```
-θ ~ Beta(α, β)
-```
+$$\theta \sim \text{Beta}(\alpha, \beta)$$
 
 The probability density function is:
-```
-p(θ | α, β) = [Γ(α+β) / (Γ(α)Γ(β))] θ^(α-1) (1-θ)^(β-1)
-```
 
-where Γ is the gamma function.
+$$p(\theta | \alpha, \beta) = \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \theta^{\alpha-1} (1-\theta)^{\beta-1}$$
+
+where $\Gamma$ is the gamma function.
 
 **Key Properties of Beta Distribution**:
 
-1. **Support**: θ ∈ [0, 1] (perfect for probabilities/rates)
+1. **Support**: $\theta \in [0, 1]$ (perfect for probabilities/rates)
 
-2. **Mean**: E[θ] = α/(α+β)
+2. **Mean**: $E[\theta] = \frac{\alpha}{\alpha+\beta}$
 
-3. **Variance**: Var(θ) = αβ / [(α+β)²(α+β+1)]
+3. **Variance**: $\text{Var}(\theta) = \frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$
 
-4. **Mode** (for α,β > 1): (α-1)/(α+β-2)
+4. **Mode** (for $\alpha,\beta > 1$): $\frac{\alpha-1}{\alpha+\beta-2}$
 
-5. **Flexibility**: Different (α,β) values produce vastly different shapes:
-   - α=β=1: Uniform (uninformative)
-   - α=β>>1: Concentrated near 0.5
-   - α>>β: Concentrated near 1
-   - α<<β: Concentrated near 0
+5. **Flexibility**: Different $(\alpha,\beta)$ values produce vastly different shapes:
+   - $\alpha=\beta=1$: Uniform (uninformative)
+   - $\alpha=\beta \gg 1$: Concentrated near 0.5
+   - $\alpha \gg \beta$: Concentrated near 1
+   - $\alpha \ll \beta$: Concentrated near 0
 
 ### The Posterior
 
 The beauty of conjugacy: **if the prior is Beta and the likelihood is Binomial, the posterior is also Beta**.
 
 **Bayes' Theorem**:
-```
-p(θ | k, n, α, β) ∝ p(k | θ, n) × p(θ | α, β)
-```
+
+$$p(\theta | k, n, \alpha, \beta) \propto p(k | \theta, n) \times p(\theta | \alpha, \beta)$$
 
 Substituting:
-```
-p(θ | k, n, α, β) ∝ θ^k (1-θ)^(n-k) × θ^(α-1) (1-θ)^(β-1)
-                  ∝ θ^(k+α-1) (1-θ)^(n-k+β-1)
-```
+
+$$\begin{align}
+p(\theta | k, n, \alpha, \beta) &\propto \theta^k (1-\theta)^{n-k} \times \theta^{\alpha-1} (1-\theta)^{\beta-1} \\
+&\propto \theta^{k+\alpha-1} (1-\theta)^{n-k+\beta-1}
+\end{align}$$
 
 This is the kernel of a Beta distribution with updated parameters:
 
-```
-θ | k, n, α, β ~ Beta(α + k, β + n - k)
-```
+$$\theta | k, n, \alpha, \beta \sim \text{Beta}(\alpha + k, \beta + n - k)$$
 
 **The Posterior Update Rule**:
-```
-α_new = α_old + k
-β_new = β_old + (n - k)
-```
+
+$$\begin{align}
+\alpha_{\text{new}} &= \alpha_{\text{old}} + k \\
+\beta_{\text{new}} &= \beta_{\text{old}} + (n - k)
+\end{align}$$
 
 This is **analytical, exact, and closed-form**—no numerical integration required.
 
@@ -117,9 +112,7 @@ This is **analytical, exact, and closed-form**—no numerical integration requir
 
 Without conjugacy, computing the posterior requires numerical integration:
 
-```
-p(θ | data) = p(data | θ) p(θ) / ∫ p(data | θ') p(θ') dθ'
-```
+$$p(\theta | \text{data}) = \frac{p(\text{data} | \theta) p(\theta)}{\int p(\text{data} | \theta') p(\theta') d\theta'}$$
 
 The denominator (the **marginal likelihood** or **evidence**) is often intractable, requiring:
 - MCMC sampling (Metropolis-Hastings, Gibbs, HMC)
@@ -141,20 +134,18 @@ Beta-Binomial conjugacy enables **millisecond updates**, making real-time monito
 
 Conjugacy enables elegant sequential updating:
 
-```
-Day 1: θ ~ Beta(α₀, β₀)
-       Observe (k₁, n₁)
-       → θ | data₁ ~ Beta(α₀ + k₁, β₀ + n₁ - k₁)
+$$\begin{align}
+\text{Day 1:} \quad &\theta \sim \text{Beta}(\alpha_0, \beta_0) \\
+&\text{Observe } (k_1, n_1) \\
+&\theta | \text{data}_1 \sim \text{Beta}(\alpha_0 + k_1, \beta_0 + n_1 - k_1) \\
+\\
+\text{Day 2:} \quad &\text{Use previous posterior as new prior} \\
+&\theta \sim \text{Beta}(\alpha_0 + k_1, \beta_0 + n_1 - k_1) \\
+&\text{Observe } (k_2, n_2) \\
+&\theta | \text{data}_{1,2} \sim \text{Beta}(\alpha_0 + k_1 + k_2, \beta_0 + n_1 + n_2 - k_1 - k_2)
+\end{align}$$
 
-Day 2: Use previous posterior as new prior
-       θ ~ Beta(α₀ + k₁, β₀ + n₁ - k₁)
-       Observe (k₂, n₂)
-       → θ | data₁,₂ ~ Beta(α₀ + k₁ + k₂, β₀ + n₁ + n₂ - k₁ - k₂)
-
-...and so on
-```
-
-**Key Insight**: The order of observations doesn't matter. The posterior after seeing data₁ then data₂ is identical to the posterior after seeing data₂ then data₁. This is the **likelihood principle** in action.
+**Key Insight**: The order of observations doesn't matter. The posterior after seeing $\text{data}_1$ then $\text{data}_2$ is identical to the posterior after seeing $\text{data}_2$ then $\text{data}_1$. This is the **likelihood principle** in action.
 
 ---
 
@@ -162,76 +153,74 @@ Day 2: Use previous posterior as new prior
 
 ### Prior as Pseudo-Observations
 
-The prior Beta(α, β) can be interpreted as having already observed:
-- α "pseudo-failures"
-- β "pseudo-successes"
+The prior $\text{Beta}(\alpha, \beta)$ can be interpreted as having already observed:
+- $\alpha$ "pseudo-failures"
+- $\beta$ "pseudo-successes"
 
-Total "pseudo-sample size": n₀ = α + β
+Total "pseudo-sample size": $n_0 = \alpha + \beta$
 
 **Prior strength**: How much weight does the prior carry relative to new data?
 
-If n₀ is large (e.g., α=200, β=9800, so n₀=10,000), the prior is **strong** and requires substantial new evidence to shift beliefs.
+If $n_0$ is large (e.g., $\alpha=200, \beta=9800$, so $n_0=10{,}000$), the prior is **strong** and requires substantial new evidence to shift beliefs.
 
-If n₀ is small (e.g., α=2, β=98, so n₀=100), the prior is **weak** and updates quickly with new data.
+If $n_0$ is small (e.g., $\alpha=2, \beta=98$, so $n_0=100$), the prior is **weak** and updates quickly with new data.
 
 ### Posterior Mean as Weighted Average
 
 The posterior mean can be written as a **weighted average** of prior mean and observed rate:
 
-```
-E[θ | data] = (α + k) / (α + β + n)
-            = [(α + β) / (α + β + n)] × [α/(α+β)] + [n / (α + β + n)] × [k/n]
-            = w_prior × θ_prior + w_data × θ_observed
-```
+$$\begin{align}
+E[\theta | \text{data}] &= \frac{\alpha + k}{\alpha + \beta + n} \\
+&= \frac{\alpha + \beta}{\alpha + \beta + n} \cdot \frac{\alpha}{\alpha+\beta} + \frac{n}{\alpha + \beta + n} \cdot \frac{k}{n} \\
+&= w_{\text{prior}} \times \theta_{\text{prior}} + w_{\text{data}} \times \theta_{\text{observed}}
+\end{align}$$
 
 where:
-- w_prior = n₀ / (n₀ + n)
-- w_data = n / (n₀ + n)
-- w_prior + w_data = 1
+- $w_{\text{prior}} = \frac{n_0}{n_0 + n}$
+- $w_{\text{data}} = \frac{n}{n_0 + n}$
+- $w_{\text{prior}} + w_{\text{data}} = 1$
 
 **Interpretation**: The posterior belief is a compromise between:
-1. What you believed before (prior mean α/(α+β))
-2. What you just observed (sample rate k/n)
+1. What you believed before (prior mean $\alpha/(\alpha+\beta)$)
+2. What you just observed (sample rate $k/n$)
 
 The weights depend on **relative information content**:
-- Large n₀, small n → prior dominates
-- Small n₀, large n → data dominates
-- n₀ ≈ n → balanced compromise
+- Large $n_0$, small $n$ → prior dominates
+- Small $n_0$, large $n$ → data dominates
+- $n_0 \approx n$ → balanced compromise
 
 ### Variance Reduction (Uncertainty Collapse)
 
 As data accumulates, posterior variance shrinks:
 
-```
-Var(θ | data) = (α + k)(β + n - k) / [(α + β + n)²(α + β + n + 1)]
-```
+$$\text{Var}(\theta | \text{data}) = \frac{(\alpha + k)(\beta + n - k)}{(\alpha + \beta + n)^2(\alpha + \beta + n + 1)}$$
 
-The denominator grows with (α + β + n)³, so variance decreases as O(1/n²).
+The denominator grows with $(\alpha + \beta + n)^3$, so variance decreases as $O(1/n^2)$.
 
 **Key Properties**:
 
 1. **Uncertainty always decreases**: More data → tighter credible intervals
-2. **Asymptotic convergence**: As n → ∞, posterior concentrates at true θ
-3. **Rate of convergence**: Depends on prior strength n₀
+2. **Asymptotic convergence**: As $n \to \infty$, posterior concentrates at true $\theta$
+3. **Rate of convergence**: Depends on prior strength $n_0$
 
 ### Example Numerical Update
 
-**Prior**: Beta(2, 98) implies:
-- Prior mean: 2/100 = 0.02 (2% failure rate)
-- Prior variance: (2×98)/(100²×101) ≈ 0.000192
-- Prior std dev: 0.0139 (±1.4%)
+**Prior**: $\text{Beta}(2, 98)$ implies:
+- Prior mean: $2/100 = 0.02$ (2% failure rate)
+- Prior variance: $(2 \times 98)/(100^2 \times 101) \approx 0.000192$
+- Prior std dev: $0.0139$ (±1.4%)
 
 **Observation**: 5 failures in 50 batches (10% observed rate)
 
-**Posterior**: Beta(2+5, 98+50-5) = Beta(7, 143)
-- Posterior mean: 7/150 = 0.0467 (4.67% failure rate)
-- Posterior variance: (7×143)/(150²×151) ≈ 0.000295
-- Posterior std dev: 0.0172 (±1.7%)
+**Posterior**: $\text{Beta}(2+5, 98+50-5) = \text{Beta}(7, 143)$
+- Posterior mean: $7/150 = 0.0467$ (4.67% failure rate)
+- Posterior variance: $(7 \times 143)/(150^2 \times 151) \approx 0.000295$
+- Posterior std dev: $0.0172$ (±1.7%)
 
 **Analysis**:
 - Prior said 2%, data said 10%, posterior compromised at 4.67%
-- Weight on prior: 100/150 = 67%
-- Weight on data: 50/150 = 33%
+- Weight on prior: $100/150 = 67\%$
+- Weight on data: $50/150 = 33\%$
 - Even strong evidence (10%) only shifted belief modestly due to prior weight
 
 ---
@@ -241,38 +230,36 @@ The denominator grows with (α + β + n)³, so variance decreases as O(1/n²).
 ### Method 1: Historical Data
 
 If you have previous audit results:
-```
-Last year: 2 failures in 100 batches
-→ Use Beta(2, 98) as this year's prior
-```
+
+$$\text{Last year: 2 failures in 100 batches} \rightarrow \text{Use Beta}(2, 98) \text{ as this year's prior}$$
 
 This is the **empirical Bayes** approach—use past data to inform the prior.
 
 ### Method 2: Expert Elicitation
 
 Ask domain experts:
-1. "What failure rate do you expect?" → Sets α/(α+β)
-2. "How confident are you?" → Sets α+β
+1. "What failure rate do you expect?" → Sets $\alpha/(\alpha+\beta)$
+2. "How confident are you?" → Sets $\alpha+\beta$
 
 Example:
 - Expert: "I expect 2%, and I'm as confident as if I'd seen 500 samples"
-- → α/(α+β) = 0.02 and α+β = 500
-- → α = 10, β = 490
+- $\rightarrow \alpha/(\alpha+\beta) = 0.02$ and $\alpha+\beta = 500$
+- $\rightarrow \alpha = 10, \beta = 490$
 
 ### Method 3: Objective Priors
 
 Several "uninformative" priors exist:
 
-**Uniform Prior**: Beta(1, 1)
-- Every value of θ equally likely
-- Posterior mean = k/n (same as frequentist MLE after first observation)
+**Uniform Prior**: $\text{Beta}(1, 1)$
+- Every value of $\theta$ equally likely
+- Posterior mean = $k/n$ (same as frequentist MLE after first observation)
 
-**Jeffreys Prior**: Beta(0.5, 0.5)
+**Jeffreys Prior**: $\text{Beta}(0.5, 0.5)$
 - Invariant under reparameterization
 - Represents "maximum ignorance" in information-theoretic sense
 
-**Haldane Prior**: Beta(0, 0) [improper]
-- Undefined as a proper density, but posterior is Beta(k, n-k)
+**Haldane Prior**: $\text{Beta}(0, 0)$ [improper]
+- Undefined as a proper density, but posterior is $\text{Beta}(k, n-k)$
 - Extremely non-informative
 
 ### Prior Predictive Checks
@@ -280,31 +267,20 @@ Several "uninformative" priors exist:
 To validate your prior, simulate data from it and ask: "Does this match my beliefs?"
 
 **Prior Predictive Distribution**:
-```
-P(k | n, α, β) = ∫ P(k | n, θ) P(θ | α, β) dθ
-               = Beta-Binomial(n, α, β)
-```
 
-This is the distribution of failures you'd expect **before seeing any data**.
+$$P(k | n, \alpha, \beta) = \binom{n}{k} \frac{B(k+\alpha, n-k+\beta)}{B(\alpha, \beta)}$$
 
-For Beta(2, 98):
-```
-E[k | n=50] = n × α/(α+β) = 50 × 0.02 = 1 failure
-Var[k | n=50] = ...calculation... ≈ 1.02
-```
+where $B$ is the beta function: $B(a,b) = \Gamma(a)\Gamma(b)/\Gamma(a+b)$.
 
-So we'd expect 1±1 failures in 50 batches. If this seems unreasonable (e.g., you've never seen fewer than 5 failures in 50 batches), your prior is miscalibrated.
+This is the **Beta-Binomial distribution**. Simulate values and verify they align with expert expectations.
 
-### Posterior Predictive Checks
+**Example**:
+- Prior: $\text{Beta}(2, 98)$
+- Sample size: $n=100$
+- Prior predictive mean: $n \cdot \alpha/(\alpha+\beta) = 100 \times 0.02 = 2$ failures expected
+- Prior predictive variance: [more complex formula, involves overdispersion]
 
-After updating, check if the posterior generates plausible future data:
-
-**Posterior Predictive**:
-```
-P(k_new | n_new, data_old) = ∫ P(k_new | n_new, θ) P(θ | data_old) dθ
-```
-
-This is how you validate model calibration (see next section).
+If experts say "we'd never see more than 10 failures in 100 batches", but your prior predicts 20+ failures with non-negligible probability, recalibrate.
 
 ---
 
@@ -312,63 +288,49 @@ This is how you validate model calibration (see next section).
 
 ### Frequentist Confidence Interval
 
-"If we repeat this experiment many times, 95% of the intervals constructed this way will contain the true θ."
+A **95% confidence interval** for $\theta$ means:
 
-**Critical point**: θ is fixed (though unknown). The interval is random (varies across hypothetical repeated samples).
+> "If we repeated this experiment infinitely many times and constructed confidence intervals each time, 95% of those intervals would contain the true $\theta$."
 
-You **cannot** say "there's a 95% probability θ is in this interval" under frequentist interpretation.
+**What it does NOT mean**: "There's a 95% probability the true $\theta$ is in this specific interval."
 
 ### Bayesian Credible Interval
 
-"Given the data we observed, there's a 95% probability that θ lies in this interval."
+A **95% credible interval** for $\theta$ means:
 
-**Critical point**: θ is random (we have a probability distribution over it). The data is fixed (we observed it).
+> "Given the data we observed, there's a 95% probability that $\theta$ lies in this interval."
 
-For Beta posterior, the 95% credible interval is:
-```
-[Beta.ppf(0.025, α_post, β_post), Beta.ppf(0.975, α_post, β_post)]
-```
+**Direct probabilistic statement about $\theta$**—what decision-makers actually want.
 
-where `Beta.ppf` is the percent point function (inverse CDF).
+### Computing Credible Intervals
 
-### Why This Matters for Governance
+For $\text{Beta}(\alpha, \beta)$, the $(1-\gamma)$ credible interval can be computed via:
 
-Governance decisions require statements like:
-- "There's a 90% probability the failure rate exceeds 5%"
-- "We're 95% confident the true rate is between 3% and 7%"
+**Equal-Tailed Interval** (most common):
 
-These are **probability statements about θ**, which are:
-- Natural and valid under Bayesian interpretation
-- Philosophically problematic under frequentist interpretation
+$$[\text{Beta}^{-1}(\gamma/2 | \alpha, \beta), \text{Beta}^{-1}(1-\gamma/2 | \alpha, \beta)]$$
 
-Bayesian credible intervals directly answer the governance question: "How uncertain are we about the true risk?"
+where $\text{Beta}^{-1}$ is the inverse CDF (quantile function).
 
-### Highest Density Interval (HDI)
+**Highest Posterior Density (HPD) Interval** (narrowest):
 
-The default credible interval is the **equal-tailed interval**: 2.5% below, 2.5% above.
+Find $[a, b]$ such that:
+1. $\int_a^b p(\theta|\text{data}) d\theta = 1-\gamma$
+2. $p(a|\text{data}) = p(b|\text{data})$ (equal density at endpoints)
 
-An alternative is the **HDI**: the shortest interval containing 95% of the posterior mass.
+HPD is slightly narrower but requires numerical optimization. For symmetric distributions, equal-tailed ≈ HPD.
 
-For symmetric distributions (like Beta when α ≈ β), these coincide. For skewed distributions, HDI can be more intuitive.
+### Example
 
-```python
-from scipy.optimize import minimize
+**Posterior**: $\text{Beta}(7, 143)$
 
-def hdi_95(alpha, beta):
-    """Find 95% Highest Density Interval for Beta distribution"""
-    
-    def width(lower):
-        # Find upper bound such that interval contains 95% mass
-        mass = 0.95
-        upper = beta.ppf(beta.cdf(lower, alpha, beta) + mass, alpha, beta)
-        return upper - lower
-    
-    result = minimize(width, x0=0.025, bounds=[(0, 1)])
-    lower = result.x[0]
-    upper = beta.ppf(beta.cdf(lower, alpha, beta) + 0.95, alpha, beta)
-    
-    return lower, upper
-```
+**95% credible interval**: $[0.019, 0.089]$
+
+**Interpretation**: "We're 95% confident the true failure rate is between 1.9% and 8.9%."
+
+Compare to frequentist exact binomial confidence interval (Clopper-Pearson) for $k=5, n=50$:
+- Frequentist 95% CI: $[0.033, 0.215]$
+- Much wider because it doesn't incorporate prior information
 
 ---
 
@@ -378,19 +340,17 @@ def hdi_95(alpha, beta):
 
 The **information gain** from updating prior to posterior can be quantified via KL divergence:
 
-```
-KL(posterior || prior) = ∫ p(θ | data) log[p(θ | data) / p(θ)] dθ
-```
+$$\text{KL}(p_{\text{posterior}} \| p_{\text{prior}}) = \int p(\theta | \text{data}) \log\frac{p(\theta | \text{data})}{p(\theta)} d\theta$$
 
 For Beta distributions, this has a closed form:
 
-```
-KL(Beta(α', β') || Beta(α, β)) = 
-    log[Γ(α+β) / Γ(α)Γ(β)] - log[Γ(α'+β') / Γ(α')Γ(β')]
-    + (α'-α)ψ(α') + (β'-β)ψ(β') - (α'+β'-α-β)ψ(α'+β')
-```
+$$\begin{align}
+\text{KL}(\text{Beta}(\alpha', \beta') \| \text{Beta}(\alpha, \beta)) = &\log\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} - \log\frac{\Gamma(\alpha'+\beta')}{\Gamma(\alpha')\Gamma(\beta')} \\
+&+ (\alpha'-\alpha)\psi(\alpha') + (\beta'-\beta)\psi(\beta') \\
+&- (\alpha'+\beta'-\alpha-\beta)\psi(\alpha'+\beta')
+\end{align}$$
 
-where ψ is the digamma function.
+where $\psi$ is the digamma function.
 
 **Interpretation**: KL divergence measures how many "bits" of information the data provided. High KL → data was surprising given prior. Low KL → data confirmed prior beliefs.
 
@@ -398,21 +358,17 @@ where ψ is the digamma function.
 
 Shannon entropy quantifies uncertainty:
 
-```
-H(θ) = -∫ p(θ) log p(θ) dθ
-```
+$$H(\theta) = -\int p(\theta) \log p(\theta) d\theta$$
 
-For Beta(α, β):
-```
-H(Beta(α,β)) = log[B(α,β)] - (α-1)ψ(α) - (β-1)ψ(β) + (α+β-2)ψ(α+β)
-```
+For $\text{Beta}(\alpha, \beta)$:
 
-where B is the beta function.
+$$H(\text{Beta}(\alpha,\beta)) = \log B(\alpha,\beta) - (\alpha-1)\psi(\alpha) - (\beta-1)\psi(\beta) + (\alpha+\beta-2)\psi(\alpha+\beta)$$
+
+where $B$ is the beta function.
 
 **Learning Dynamics**:
-```
-Information Gain = H(prior) - H(posterior)
-```
+
+$$\text{Information Gain} = H(\text{prior}) - H(\text{posterior})$$
 
 As data accumulates, entropy monotonically decreases → uncertainty collapses.
 
@@ -420,17 +376,14 @@ As data accumulates, entropy monotonically decreases → uncertainty collapses.
 
 The expected information from a single observation is the **Fisher information**:
 
-```
-I(θ) = E[(d/dθ log p(k|θ,n))²]
-     = n / [θ(1-θ)]
-```
+$$I(\theta) = E\left[\left(\frac{d}{d\theta} \log p(k|\theta,n)\right)^2\right] = \frac{n}{\theta(1-\theta)}$$
 
 **Interpretation**: 
-- Maximum at θ=0.5 (most informative when failure rate is 50%)
-- Minimum at θ→0 or θ→1 (rare events provide less information per observation)
-- Scales linearly with sample size n
+- Maximum at $\theta=0.5$ (most informative when failure rate is 50%)
+- Minimum at $\theta \to 0$ or $\theta \to 1$ (rare events provide less information per observation)
+- Scales linearly with sample size $n$
 
-This explains why detecting small failure rates (θ≈0.02) requires large samples—each observation carries little information.
+This explains why detecting small failure rates ($\theta \approx 0.02$) requires large samples—each observation carries little information.
 
 ---
 
@@ -438,32 +391,26 @@ This explains why detecting small failure rates (θ≈0.02) requires large sampl
 
 ### Consistency (Bernstein-von Mises Theorem)
 
-Under regularity conditions, as n → ∞:
+Under regularity conditions, as $n \to \infty$:
 
-```
-θ | data ~ N(θ_MLE, [nI(θ_MLE)]⁻¹)
-```
+$$\theta | \text{data} \sim N\left(\hat{\theta}_{\text{MLE}}, [nI(\hat{\theta}_{\text{MLE}})]^{-1}\right)$$
 
-approximately, where θ_MLE = k/n is the maximum likelihood estimate.
+approximately, where $\hat{\theta}_{\text{MLE}} = k/n$ is the maximum likelihood estimate.
 
 **Implications**:
-1. **Asymptotic agreement**: Bayesian and frequentist inferences converge for large n
-2. **Prior wash-out**: For n >> n₀, the prior becomes negligible
+1. **Asymptotic agreement**: Bayesian and frequentist inferences converge for large $n$
+2. **Prior wash-out**: For $n \gg n_0$, the prior becomes negligible
 3. **Normality**: Posterior becomes approximately Gaussian (even if prior is not)
 
 ### Rate of Convergence
 
-The posterior mean converges to the true θ at rate O(1/√n):
+The posterior mean converges to the true $\theta$ at rate $O(1/\sqrt{n})$:
 
-```
-E[θ | data] - θ_true = O(1/√n)
-```
+$$E[\theta | \text{data}] - \theta_{\text{true}} = O(1/\sqrt{n})$$
 
-The posterior variance shrinks at rate O(1/n):
+The posterior variance shrinks at rate $O(1/n)$:
 
-```
-Var(θ | data) = O(1/n)
-```
+$$\text{Var}(\theta | \text{data}) = O(1/n)$$
 
 **Practical Consequence**: To halve your uncertainty, you need 4× the data.
 
@@ -471,15 +418,11 @@ Var(θ | data) = O(1/n)
 
 In online learning theory, **regret** measures cumulative prediction error:
 
-```
-Regret(T) = Σₜ Loss(θ_est,t, θ_true)
-```
+$$\text{Regret}(T) = \sum_{t=1}^T \text{Loss}(\hat{\theta}_t, \theta_{\text{true}})$$
 
 For Beta-Binomial with log-loss, Bayesian updating achieves **logarithmic regret**:
 
-```
-Regret(T) = O(log T)
-```
+$$\text{Regret}(T) = O(\log T)$$
 
 This is **minimax optimal**—no algorithm can do better in the worst case.
 
@@ -489,31 +432,31 @@ This is **minimax optimal**—no algorithm can do better in the worst case.
 
 ### The Limitation of Single-Level Models
 
-Our Beta-Binomial model assumes all observations come from the **same** θ. But in enterprises:
+Our Beta-Binomial model assumes all observations come from the **same** $\theta$. But in enterprises:
 - Different departments may have different failure rates
 - Failure rates may vary over time
 - Multiple processes may share some common structure
 
 ### Hierarchical Beta-Binomial
 
-For J different processes (e.g., different manufacturing sites):
+For $J$ different processes (e.g., different manufacturing sites):
 
-```
-θⱼ ~ Beta(α₀, β₀)         [Process-specific rates]
-kⱼ ~ Binomial(nⱼ, θⱼ)     [Observations per process]
-```
+$$\begin{align}
+\theta_j &\sim \text{Beta}(\alpha_0, \beta_0) \quad &&\text{[Process-specific rates]} \\
+k_j &\sim \text{Binomial}(n_j, \theta_j) \quad &&\text{[Observations per process]}
+\end{align}$$
 
-**Partial pooling**: Information from process j informs beliefs about process j', but they're not identical.
+**Partial pooling**: Information from process $j$ informs beliefs about process $j'$, but they're not identical.
 
 ### Hyperpriors
 
-We can go one level deeper and treat (α₀, β₀) as unknown:
+We can go one level deeper and treat $(\alpha_0, \beta_0)$ as unknown:
 
-```
-α₀, β₀ ~ some prior       [Hyperprior]
-θⱼ | α₀, β₀ ~ Beta(α₀, β₀)
-kⱼ | θⱼ ~ Binomial(nⱼ, θⱼ)
-```
+$$\begin{align}
+\alpha_0, \beta_0 &\sim \text{some prior} \quad &&\text{[Hyperprior]} \\
+\theta_j | \alpha_0, \beta_0 &\sim \text{Beta}(\alpha_0, \beta_0) \\
+k_j | \theta_j &\sim \text{Binomial}(n_j, \theta_j)
+\end{align}$$
 
 Now we're learning **both** the process-specific rates and the distribution of rates across the enterprise.
 
@@ -523,10 +466,10 @@ Now we're learning **both** the process-specific rates and the distribution of r
 
 For non-stationary processes:
 
-```
-θₜ | θₜ₋₁ ~ some transition model   [e.g., random walk]
-kₜ | θₜ ~ Binomial(nₜ, θₜ)
-```
+$$\begin{align}
+\theta_t | \theta_{t-1} &\sim \text{some transition model} \quad &&\text{[e.g., random walk]} \\
+k_t | \theta_t &\sim \text{Binomial}(n_t, \theta_t)
+\end{align}$$
 
 This is a **state-space model** or **dynamic linear model**. 
 
@@ -551,14 +494,14 @@ This is a **state-space model** or **dynamic linear model**.
 
 ### 2. Stationarity Assumption
 
-**Assumption**: θ is constant over time.
+**Assumption**: $\theta$ is constant over time.
 
 **Violation**:
-- Process improvements (θ decreases over time)
-- Degradation (θ increases over time)
-- Regime shifts (θ jumps at specific events)
+- Process improvements ($\theta$ decreases over time)
+- Degradation ($\theta$ increases over time)
+- Regime shifts ($\theta$ jumps at specific events)
 
-**Consequence**: Posterior doesn't track true θ if it's changing.
+**Consequence**: Posterior doesn't track true $\theta$ if it's changing.
 
 **Fix**: Use dynamic models (see Hierarchical Models section) or **discount past data** exponentially:
 
@@ -574,8 +517,8 @@ This gives more weight to recent data.
 **Assumption**: Failures follow Binomial distribution.
 
 **Violation**:
-- Overdispersion (variance > npθ(1-θ))
-- Underdispersion (variance < npθ(1-θ))
+- Overdispersion (variance > $np\theta(1-\theta)$)
+- Underdispersion (variance < $np\theta(1-\theta)$)
 - Zero-inflation (excess zeros beyond Binomial expectation)
 
 **Consequence**: Model misspecification leads to poor calibration.
@@ -584,7 +527,7 @@ This gives more weight to recent data.
 
 ### 4. No Covariates
 
-**Assumption**: θ doesn't depend on other variables.
+**Assumption**: $\theta$ doesn't depend on other variables.
 
 **Violation**:
 - Failure rate varies by operator, shift, equipment age, batch size, etc.
@@ -597,9 +540,7 @@ This gives more weight to recent data.
 
 For the model to be "honest", predictions should be calibrated:
 
-```
-P(true θ ∈ credible interval) ≈ nominal coverage (e.g., 95%)
-```
+$$P(\theta_{\text{true}} \in \text{credible interval}) \approx \text{nominal coverage (e.g., 95%)}$$
 
 **Check**: Simulate data from the true model, compute credible intervals, measure coverage.
 
