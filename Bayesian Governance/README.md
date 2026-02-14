@@ -263,7 +263,7 @@ If you use this simulation in research or presentations:
 
 ```
 @software{bayesian_governance_sim_2026,
-  author = {Francesco [Last Name]},
+  author = {Francesco Orsi},
   title = {Stochastic Governance Simulation: From Checklists to Bayesian Priors},
   year = {2026},
   url = {https://github.com/[your-username]/bayesian-governance-simulation}
@@ -280,5 +280,3 @@ For questions about:
 ---
 
 **Remember**: The goal isn't to eliminate uncertainty—it's to **quantify it**, **track it**, and **govern with it**. Bayesian methods don't promise perfect foresight, they promise **honest uncertainty** and **continuous learning**.
-
-The manifold is already warping. The question is whether you've built the instrumentation to see it warp in real-time.
