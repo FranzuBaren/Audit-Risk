@@ -156,7 +156,7 @@ This work is not a claim that entropy monitoring replaces existing audit methods
 If you use this work in your own research or presentations:
 
 ```
-Bonato, F. (2026). Entropy: Measuring What Your Processes Leak.
+Orsi, F. (2026). Entropy: Measuring What Your Processes Leak.
 Audit 2.0 in the Age of Non-Deterministic Systems, Post 4.
 Kunskap Substack. https://kunskap.substack.com
 ```
