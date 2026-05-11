@@ -329,11 +329,11 @@ matplotlib>=3.4.0
 ```bibtex
 @techreport{stranieri2026tda,
   title={Topological Data Analysis for Fraud Detection: A Comparative Study},
-  author={Stranieri, Francesco},
+  author={Orsi, Francesco},
   institution={F. Hoffmann-La Roche AG},
   year={2026},
   type={Technical Report},
-  url={https://github.com/fstranieri/tda-fraud-detection}
+  url={}
 }
 ```
 
