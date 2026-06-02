@@ -1,0 +1,12 @@
+# Drift experiment dependencies
+# Tested with Python 3.11. Should work on 3.9+
+
+numpy>=1.24,<3.0
+scipy>=1.10,<2.0
+scikit-learn>=1.3,<2.0
+matplotlib>=3.7,<4.0
+sentence-transformers>=2.2,<4.0
+
+# Optional: notebook walkthrough only
+jupyter>=1.0
+ipykernel>=6.0
