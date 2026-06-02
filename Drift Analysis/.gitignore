@@ -1,0 +1,45 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cached models from sentence-transformers
+.cache/
+~/.cache/huggingface/
+
+# Outputs from local runs (the reference figure is checked in to figures/)
+output/
+*.log
